@@ -16,8 +16,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "http://localhost:5173")
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean);
+
 const corsOptions = {
-    origin:'http://localhost:5173',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error("CORS origin not allowed"));
+    },
     credentials:true
 }
 
